@@ -8,6 +8,7 @@
 
 namespace app\helper;
 
+use think\facade\Log;
 use think\Response;
 
 trait TraitReturn
@@ -25,6 +26,10 @@ trait TraitReturn
      */
     public function json(array $data = [], int $httpCode = 200)
     {
+        $data = [
+            'code' => $httpCode,
+            'data' => $data
+        ];
         return json($data, $httpCode);
     }
 
@@ -41,7 +46,17 @@ trait TraitReturn
      */
     public function success(string $msg = 'success', int $httpCode = 200)
     {
-        $data = ['msg' => $msg];
+        $data = ['code' => $httpCode, 'msg' => $msg];
+        //TODO  日志记录
+        $log = [
+            'path' => $this->request->controller().'/'.$this->request->action(),
+            'code' => $httpCode,
+            'method' => $this->request->method(),
+            'params' => $this->request->param(),
+            'url' => $this->request->url(),
+            'msg' => $msg
+        ];
+        Log::record(json_encode($log), 'success');
         return json($data, $httpCode);
     }
 
@@ -61,6 +76,17 @@ trait TraitReturn
     public function error(int $httpCode = 200, string $msg = '未知错误', string $description = '', int $code = 0)
     {
         $data = ['code' => $code ?: $httpCode, 'msg' => $msg, 'description' => $description];
+        //TODO  日志记录
+        $log = [
+            'path' => $this->request->controller().'/'.$this->request->action(),
+            'code' => $httpCode,
+            'method' => $this->request->method(),
+            'params' => $this->request->param(),
+            'url' => $this->request->url(),
+            'msg' => $msg,
+            'desc' => $description
+        ];
+        Log::record(json_encode($log), 'error');
         return json($data, $httpCode);
     }
 

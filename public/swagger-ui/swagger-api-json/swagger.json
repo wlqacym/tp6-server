@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  title: '百分微信服务 API'
+  description: 'Version: 1.0.0'
+  contact:
+    name: sugm
+    email: ''
+  version: 1.0.0
+paths:
+  '/api/v1/common/Clear/cache/{name}':
+    get:
+      tags:
+        - 公共-清理
+      summary: 清除缓存
+      parameters:
+        -
+          name: name
+          in: path
+          description: 缓存名
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 清除成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+        '400':
+          description: 清除失败
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32, example: '500' }
+                  msg: { description: 错误提示, type: string, format: string }
+                  desc: { description: 错误详情, type: string, format: string }
+                type: object
+  '/api/v1/common/LogSearch/getLogList/{type}/{ym}/{d}':
+    get:
+      tags:
+        - 公共-日志
+      summary: 获取日志列表
+      parameters:
+        -
+          name: page
+          in: query
+          description: 页码
+          required: true
+          schema:
+            type: integer
+        -
+          name: size
+          in: query
+          description: 每页条数
+          required: true
+          schema:
+            type: integer
+        -
+          name: type
+          in: path
+          description: 日志类型
+          required: true
+          schema:
+            type: string
+            enum:
+              - info
+              - error
+              - success
+        -
+          name: ym
+          in: path
+          description: 年月
+          required: true
+          schema:
+            type: string
+            example: '202008'
+        -
+          name: d
+          in: path
+          description: 日
+          required: true
+          schema:
+            type: string
+            example: '01'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  data: { properties: { total: { description: 总条数, type: integer }, rows: { type: array, items: { properties: { time: { description: 时间, type: string }, type: { description: 类型, type: string, enum: [info, error, success] }, msg: { type: object } }, type: object } } }, type: object }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+        '400':
+          description: 获取失败
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32, example: '500' }
+                  msg: { description: 错误提示, type: string, format: string }
+                  desc: { description: 错误详情, type: string, format: string }
+                type: object
+  /api/v1/common/Swagger/create:
+    get:
+      tags:
+        - 更新swagger
+      summary: 更新swagger
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+                example:
+                  code: 200
+                  msg: ok
+                  desc: ''
+  /api/v1/oa/Msg/sendTemplate:
+    post:
+      tags:
+        - 公众号-消息
+      summary: 模板消息发送
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - tempIdent
+                - userId
+                - unionId
+                - oaIdent
+                - data
+              properties:
+                tempIdent:
+                  description: 消息模板标识
+                  type: string
+                  enum: [tktz_success]
+                userId:
+                  description: 百分用户id
+                  type: integer
+                unionId:
+                  description: 微信unionid
+                  type: string
+                oaIdent:
+                  description: 公众号标识
+                  type: string
+                  enum: [bfyjy, bfyk]
+                data:
+                  type: object
+              type: object
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32, example: '200' }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+        '400':
+          description: 缺少参数|参数错误|请求错误
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32, example: '400' }
+                  msg: { description: 错误提示, type: string, format: string }
+                  desc: { description: 错误详情, type: string, format: string }
+                type: object
+  /api/v1/oa/Users/info:
+    get:
+      tags:
+        - 公众号-用户
+      summary: 获取微信用户信息
+      parameters:
+        -
+          name: code
+          in: query
+          description: 微信code
+          required: true
+          schema:
+            type: string
+        -
+          name: ident
+          in: query
+          description: 公众号标识
+          required: true
+          schema:
+            type: string
+            enum:
+              - bfyjy
+              - bfyk
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  data: { properties: { id: { description: 微信用户表id, type: integer }, openId: { description: 所传公众号标识对应的openid, type: string }, unionId: { description: 所传公众号标识对应的unionid, type: integer }, userId: { description: 百分用户id, type: string } }, type: object }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+        '400':
+          description: 获取失败
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32, example: '500' }
+                  msg: { description: 错误提示, type: string, format: string }
+                  desc: { description: 错误详情, type: string, format: string }
+                type: object
+  '/api/v1/Users/updateUserId/{id}':
+    patch:
+      tags:
+        - 公众号-用户
+      summary: 更新微信用户表-百分用户id
+      parameters:
+        -
+          name: id
+          in: path
+          description: 微信用户id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                userId:
+                  description: 百分用户id
+                  type: integer
+              type: object
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  msg: { description: 提示, type: string, format: string }
+                  desc: { description: 详情, type: string, format: string }
+                type: object
+        '400':
+          description: 更新失败
+          content:
+            application/json:
+              schema:
+                properties:
+                  code: { description: 业务code, type: integer, format: int32 }
+                  msg: { description: 错误提示, type: string, format: string }
+                  desc: { description: 错误详情, type: string, format: string }
+                type: object

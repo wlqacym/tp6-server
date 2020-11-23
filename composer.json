@@ -1,23 +1,26 @@
 {
-    "name": "aichenk/tp6-server",
-    "description": "tp6基础框架，增加api模块，api支持中间件，支持参数顺序绑定",
+    "name": " wlqacym/tp-phpunit-service ",
+    "description": "tp6基础框架，增加api模块，api支持中间件，支持参数顺序绑定；增加logic业务及service服务，调用方式支持phpunit单测",
     "type": "project",
     "license": "MIT",
     "authors": [
         {
-            "name": "aiChenK",
-            "email": "aichenk@qq.com"
+            "name": "wlq",
+            "email": "2139131476@qq.com"
         }
     ],
     "require": {
         "php": ">=7.2.0",
         "topthink/framework": "^6.0.0",
         "topthink/think-orm": "^2.0",
+        "aichenk/http-client": "^2.0",
         "aichenk/tp6-session": "^1.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",
-        "topthink/think-trace":"^1.0"
+        "topthink/think-trace":"^1.0",
+        "phpunit/phpunit": "8.5",
+        "zircote/swagger-php": "^3.0"
     },
     "autoload": {
         "psr-4": {

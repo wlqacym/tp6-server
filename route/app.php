@@ -8,11 +8,10 @@
 
 use think\facade\Route;
 
-Route::any('/api/:version', 'Api/*')->pattern(['version' => 'v\d+']);
+Route::any('/api/[:version]', 'Api/*')->pattern(['version' => 'v\d+']);
+
+Route::get('/', 'Index/index');
+Route::get('/index/:action', 'Index/:action');
 
 Route::miss('error/*');
-
-Route::get('/', function () {
-    return 'hello, tp6-server!';
-});
 
