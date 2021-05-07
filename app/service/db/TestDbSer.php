@@ -8,6 +8,7 @@ use app\BaseDbService;
 
 class TestDbSer extends BaseDbService
 {
+    protected $modelName = 'WxConfig';
     /**
      * dbSer用例
      *

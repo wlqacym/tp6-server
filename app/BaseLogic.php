@@ -4,6 +4,7 @@
 namespace app;
 
 
+use app\helper\CommonAttr;
 use app\middle\service\Api;
 use app\middle\service\Db;
 use app\middle\service\Helper;
@@ -14,48 +15,15 @@ use app\middle\service\Helper;
  */
 class BaseLogic
 {
+    use CommonAttr;
 
-    /**
-     * 数据库服务实例
-     * @var Db
-     */
-    protected $dbSer;
-
-    /**
-     * 第三方服务实例
-     * @var Api
-     */
-    protected $apiSer;
-
-    /**
-     * 公共资源服务实例
-     * @var Helper
-     */
-    protected $helperSer;
-
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
-     * Request实例
-     * @var \think\Request
-     */
-    protected $request;
-
-    /**
-     * 初始化
-     * BaseLogic constructor.
-     */
-    public function __construct()
+    public function initHelper()
     {
-        $this->dbSer = new Db();
-        $this->apiSer = new Api();
-        $this->helperSer = new Helper($this->dbSer, $this->apiSer);
-        $this->app = app();
-        $this->request = $this->app->request;
+        $this->helper->setAttrDb($this->db);
+        $this->helper->setAttrApi($this->api);
+        $this->helper->setAttrApp($this->app);
+        $this->helper->setAttrRequest($this->request);
+        $this->helper->setAttrNowTime($this->nowTime);
     }
 
     /**
@@ -71,9 +39,9 @@ class BaseLogic
     public function setDbSer($class, $object = null)
     {
         if ($object && is_object($object)) {
-            $this->dbSer->$class = $object;
+            $this->db->$class = $object;
         } else {
-            $this->dbSer->$class;
+            $this->db->$class;
         }
         return $this;
     }
@@ -91,9 +59,9 @@ class BaseLogic
     public function setApiSer($class, $object = null)
     {
         if ($object && is_object($object)) {
-            $this->apiSer->$class = $object;
+            $this->api->$class = $object;
         } else {
-            $this->apiSer->$class;
+            $this->api->$class;
         }
         return $this;
     }
@@ -111,9 +79,9 @@ class BaseLogic
     public function setHelperSer($class, $object = null)
     {
         if ($object && is_object($object)) {
-            $this->helperSer->$class = $object;
+            $this->helper->$class = $object;
         } else {
-            $this->helperSer->$class;
+            $this->helper->$class;
         }
         return $this;
     }

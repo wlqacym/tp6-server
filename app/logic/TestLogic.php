@@ -18,6 +18,7 @@ class TestLogic extends BaseLogic
      */
     public function test()
     {
+        dump($this->db->test->getPage());
         return 'testLogic';
     }
     /**
@@ -30,7 +31,7 @@ class TestLogic extends BaseLogic
      */
     public function testDb()
     {
-        return $this->dbSer->test->test();
+        return $this->db->test->test();
     }
     /**
      * logic调用apiSer用例
@@ -42,7 +43,7 @@ class TestLogic extends BaseLogic
      */
     public function testApi()
     {
-        return $this->apiSer->test->test();
+        return $this->api->test->test();
     }
     /**
      * logic调用helperSer用例
@@ -54,7 +55,7 @@ class TestLogic extends BaseLogic
      */
     public function testHelper()
     {
-        return $this->helperSer->test->test();
+        return $this->helper->test->test();
     }
     /**
      * logic调用helperSer用例
@@ -66,7 +67,7 @@ class TestLogic extends BaseLogic
      */
     public function testHelperApi()
     {
-        return $this->helperSer->test->testDb();
+        return $this->helper->test->testApi();
     }
     /**
      * logic调用helperSer用例
@@ -78,6 +79,8 @@ class TestLogic extends BaseLogic
      */
     public function testHelperDb()
     {
-        return $this->helperSer->test->testApi();
+        $this->db->test->test();
+        $this->helper->test->testDb();
+        return $this->helper->test->testDb();
     }
 }

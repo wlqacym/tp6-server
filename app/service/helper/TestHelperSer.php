@@ -31,7 +31,7 @@ class TestHelperSer extends BaseHelperService
      */
     public function testDb()
     {
-        return $this->dbSer->test->test();
+        return $this->db->test->test();
     }
 
     /**
@@ -44,6 +44,6 @@ class TestHelperSer extends BaseHelperService
      */
     public function testApi()
     {
-        return $this->apiSer->test->test();
+        return $this->api->test->test();
     }
 }

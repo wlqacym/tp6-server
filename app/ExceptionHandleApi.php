@@ -7,6 +7,7 @@ use think\exception\Handle;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\exception\ValidateException;
+use think\facade\Log;
 use think\Response;
 use Throwable;
 
@@ -50,19 +51,26 @@ class ExceptionHandleApi extends Handle
      */
     public function render($request, Throwable $e): Response
     {
+        $code = $e->getCode();
         $msg         = $this->getMessage($e);
         $description = $e->getTraceAsString();
         if ($e instanceof \ArgumentCountError) {
             $msg         = '缺少必要参数';
             $description = $this->getMessage($e);
         }
-
+        if ($e instanceof HttpException) {
+            $code = $e->getStatusCode();
+            $description = json_decode($e->getMessage(), true);
+            $msg = $description['error'];
+            Log::write($e->getMessage(), 'api_error');
+        }
         // 添加自定义异常处理机制
         $data = [
-            'code'        => $e->getCode(),
+            'code'        => $code,
             'msg'         => $msg,
             'description' => $description
         ];
+        Log::write(json_encode($data), 'error');
         return json($data, 500);
     }
 }

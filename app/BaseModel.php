@@ -22,6 +22,28 @@ class BaseModel extends Model
 
     //TODO  记录创建|更新人
 
+
+    /**
+     * 创建前记录创建更新人
+     *
+     * @param Model $model
+     * @return mixed|void
+     * @throws Exception
+     *
+     * @author  wlq
+     * @since   v1.0    20200604
+     */
+    public static function onBeforeInsert(Model $model)
+    {
+        try {
+            $loginUser = Admin::loginInfo();
+        } catch (Exception $e) {
+            $loginUser = ['id' => 0];
+        }
+        $model->create_user = $loginUser['id'];
+        $model->update_user = $loginUser['id'];
+    }
+
     /**
      * 更新前记录更新人
      *
@@ -36,5 +58,11 @@ class BaseModel extends Model
     {
         unset($model->create_time);
         unset($model->update_time);
+        try {
+            $loginUser = Admin::loginInfo();
+        } catch (Exception $e) {
+            $loginUser = ['id' => 0];
+        }
+        $model->update_user = $loginUser['id'];
     }
 }

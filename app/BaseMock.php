@@ -4,7 +4,7 @@
 namespace app;
 
 
-use app\controller\Admin;
+use app\tests\mock\MiddleTbData;
 use PHPUnit\Framework\TestCase;
 use think\App;
 
@@ -16,10 +16,24 @@ class BaseMock extends TestCase
     protected $mock;
 
     /**
+     * @var MiddleTbData
+     */
+    protected $tb;
+
+    /**
      * @var array
      */
     protected $data = [];
 
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        $this->tb = new MiddleTbData();
+        $this->dataInit();
+    }
+
+    protected function dataInit()
+    {}
     public function mock()
     {
         return $this->mock;
@@ -59,9 +73,13 @@ class BaseMock extends TestCase
                         foreach ($fields as $v) {
                             isset($val[$v]) and $newVal[$v] = $val[$v];
                         }
-                        $return[] = $newVal;
+                        if (isset($val[$key])) {
+                            $return[$val[$key]] = $newVal;
+                        } else {
+                            $return[] = $newVal;
+                        }
                     }
-                    $key and $return = array_column($return, null, $key);
+//                    $key and $return = array_column($return, null, $key);
                 }
             }
         }
@@ -126,7 +144,6 @@ class BaseMock extends TestCase
         $return = [];
         if ($data) {
             if (is_array($fields)) {
-                $fields = explode(',', $fields);
                 foreach ($fields as $f) {
                     isset($data[$f]) and $return[$f] = $data[$f];
                 }

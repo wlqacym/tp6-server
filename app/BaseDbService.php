@@ -4,6 +4,7 @@
 namespace app;
 
 
+use app\helper\Db;
 use HttpClient\HttpClient;
 use think\exception\HttpException;
 use think\facade\Log;
@@ -14,5 +15,5 @@ use think\facade\Log;
  */
 class BaseDbService
 {
-
+    use Db;
 }

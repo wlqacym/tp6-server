@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\api\v1\test;
+namespace app\api\v1\test1;
 
 
 use app\api\Base;

@@ -4,6 +4,7 @@
 namespace app;
 
 
+use app\helper\CommonAttr;
 use app\middle\service\Api;
 use app\middle\service\Db;
 use HttpClient\HttpClient;
@@ -16,43 +17,50 @@ use think\facade\Log;
  */
 class BaseHelperService
 {
-
-    /**
-     * 数据库服务实例
-     * @var Db
-     */
-    protected $dbSer;
-
-    /**
-     * 第三方服务实例
-     * @var Api
-     */
-    protected $apiSer;
-
-    /**
-     * 应用实例
-     * @var \think\App
-     */
-    protected $app;
-
-    /**
-     * Request实例
-     * @var \think\Request
-     */
-    protected $request;
+    use CommonAttr;
+//    /**
+//     * 数据库服务实例
+//     * @var Db
+//     */
+//    protected $dbSer;
+//
+//    /**
+//     * 第三方服务实例
+//     * @var Api
+//     */
+//    protected $apiSer;
+//
+//    /**
+//     * 应用实例
+//     * @var \think\App
+//     */
+//    protected $app;
+//
+//    /**
+//     * Request实例
+//     * @var \think\Request
+//     */
+//    protected $request;
+//
+//    /**
+//     * 当前时间
+//     *
+//     * @var int
+//     */
+//    protected $nowTime;
+//    /**
+//     * 登陆信息
+//     *
+//     * @var array
+//     */
+//    protected $loginInfo;
 
     /**
      * 初始化
      * BaseHelperService constructor.
-     * @param Db $db
-     * @param Api $api
      */
-    public function __construct(Db $db, Api $api)
+    public function __construct()
     {
-        $this->dbSer = $db;
-        $this->apiSer = $api;
-        $this->app = app();
-        $this->request = $this->app->request;
         $this->init();
     }
 
@@ -98,4 +106,31 @@ class BaseHelperService
         }
         return $this;
     }
+
+//
+//    /**
+//     * 设置当前时间
+//     *
+//     * @param $nowTime
+//     *
+//     * @author wlq
+//     * @since 1.0 20210409
+//     */
+//    public function setNowTime($nowTime)
+//    {
+//        $this->nowTime = $nowTime;
+//    }
+//
+//    /**
+//     * 设置当前登陆账户
+//     *
+//     * @param $nowTime
+//     *
+//     * @author wlq
+//     * @since 1.0 20210409
+//     */
+//    public function setLoginInfo($loginInfo)
+//    {
+//        $this->loginInfo = $loginInfo;
+//    }
 }

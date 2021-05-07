@@ -4,6 +4,8 @@
 namespace app\middle\service;
 
 
+use app\helper\CommonAttr;
+
 /**
  * Class BaseDbService
  * @package app\service
@@ -11,13 +13,7 @@ namespace app\middle\service;
  */
 class Helper
 {
-    protected $db;
-    protected $api;
-    public function __construct(Db $db, Api $api)
-    {
-        $this->db = $db;
-        $this->api = $api;
-    }
+    use CommonAttr;
 
     public function setSer($class, $object = null)
     {
@@ -26,7 +22,12 @@ class Helper
         } else {
             $className = ucfirst($class).'HelperSer';
             $classPath = '\\app\\service\\helper\\'.$className;
-            $this->$class = new $classPath($this->db, $this->api);
+            $this->$class = new $classPath();
+            $this->$class->setAttrDb($this->db);
+            $this->$class->setAttrApi($this->api);
+            $this->$class->setAttrApp($this->app);
+            $this->$class->setAttrRequest($this->request);
+            $this->$class->setAttrNowTime($this->nowTime);
         }
         return $this;
     }
