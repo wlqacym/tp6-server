@@ -39,7 +39,7 @@ trait CommonAttr
      * 应用实例
      * @var \think\App
      */
-    protected $app;
+    public $app;
 
     /**
      * Request实例
@@ -208,6 +208,34 @@ trait CommonAttr
         $this->nowTime = $nowTime;
     }
 
+
+    /**
+     * 登陆账户信息初始化
+     *
+     * @author wlq
+     * @since 1.0 20210427
+     */
+    public function initAttrLoginInfo()
+    {
+        $token = $this->request->header('access-token');
+        !$token and $token = $this->request->get('token');
+        if ($token) {
+            $userInfo = cache('admin_login_'.$token);
+            $this->loginInfo = $userInfo?:[];
+        }
+    }
+    /**
+     * 登陆账户信息设置
+     *
+     * @param $loginInfo
+     *
+     * @author wlq
+     * @since 1.0 20210427
+     */
+    public function setAttrLoginInfo($loginInfo)
+    {
+        $this->loginInfo = $loginInfo;
+    }
     /**
      * 初始化方法
      *

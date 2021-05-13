@@ -12,46 +12,7 @@ use think\Exception;
 
 class ConfigDbSer extends BaseDbService
 {
-    /**
-     * 添加配置项-单个
-     *
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function insertOne($data)
-    {
-        try {
-            $model = new Config();
-            $model->save($data);
-            return $model->id;
-        } catch (DbException $e) {
-            throw new Exception('配置项添加异常', 400);
-        }
-    }
-
-    /**
-     * 添加配置项-批量
-     *
-     * @param $data
-     * @return bool
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function insertAll($data)
-    {
-        try {
-            $res = Config::insertAll($data);
-            return true;
-        } catch (DbException $e) {
-            throw new Exception('配置项添加异常', 400);
-        }
-    }
+    protected $modelName = 'Config';
 
     /**
      * 标识查询配置项-排除指定id
@@ -70,7 +31,7 @@ class ConfigDbSer extends BaseDbService
         $where[] = ['ident', '=', $ident];
         $where[] = ['type', '=', $type];
         try {
-            $data = Config::where($where)->find();
+            $data = ($this->getModel())::where($where)->find();
             $data = $data?($data->id == $id?[]:$data->toArray()):[];
             return $data;
         } catch (DbException $e) {
@@ -93,7 +54,7 @@ class ConfigDbSer extends BaseDbService
     public function getByType($type, $fields = '*', $key = '')
     {
         try {
-            $data = Config::where('type', $type)
+            $data = ($this->getModel())::where('type', $type)
                 ->order('sort asc')
                 ->column($fields, $key);
             return $data;
@@ -101,93 +62,7 @@ class ConfigDbSer extends BaseDbService
             throw new Exception('配置项查询异常', 400);
         }
     }
-    /**
-     * id更新配置项
-     *
-     * @param $id
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function updateById($id, $data)
-    {
-        try {
-            $config = Config::find($id);
-            if (!$config) {
-                throw new Exception('配置项不存在', 400);
-            }
-            $config->save($data);
-            return $config->id;
-        } catch (DbException $e) {
-            throw new Exception('配置项更新异常', 400);
-        }
-    }
 
-    /**
-     * 主键删除配置项
-     *
-     * @param $ids
-     * @return bool
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function delByIds($ids)
-    {
-        !is_array($ids) and $ids = explode(',', $ids);
-        try {
-            $res = Config::destroy($ids);
-            return $res;
-        } catch (DbException $e) {
-            throw new Exception('配置项删除异常', 400);
-        }
-    }
-
-
-    /**
-     * 添加配置值-单个
-     *
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function insertEnumOne($data)
-    {
-        try {
-            $model = new ConfigEnum();
-            $model->save($data);
-            return $model->id;
-        } catch (DbException $e) {
-            throw new Exception('配置值添加异常', 400);
-        }
-    }
-
-    /**
-     * 添加配置值-批量
-     *
-     * @param $data
-     * @return bool
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function insertEnumAll($data)
-    {
-        try {
-            $res = ConfigEnum::insertAll($data);
-            return true;
-        } catch (DbException $e) {
-            throw new Exception('配置值添加异常', 400);
-        }
-    }
 
     /**
      * key=''的配置值更新
@@ -224,7 +99,7 @@ class ConfigDbSer extends BaseDbService
         $where[] = ['key', '=', $key];
         $where[] = ['cid', '=', $cId];
         try {
-            $data = ConfigEnum::where($where)->find();
+            $data = ($this->getModel('ConfigEnum'))::where($where)->find();
             $data = $data?($data->id == $id?[]:$data->toArray()):[];
             return $data;
         } catch (DbException $e) {
@@ -257,51 +132,6 @@ class ConfigDbSer extends BaseDbService
             throw new Exception('查询配置值异常', 400);
         }
     }
-    /**
-     * id更新配置值
-     *
-     * @param $id
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function updateEnumById($id, $data)
-    {
-        try {
-            $config = ConfigEnum::find($id);
-            if (!$config) {
-                throw new Exception('配置值不存在', 400);
-            }
-            $config->save($data);
-            return $config->id;
-        } catch (DbException $e) {
-            throw new Exception('配置项更新异常', 400);
-        }
-    }
-
-    /**
-     * 主键删除配置值
-     *
-     * @param $ids
-     * @return bool
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201027
-     */
-    public function delEnumByIds($ids)
-    {
-        !is_array($ids) and $ids = explode(',', $ids);
-        try {
-            $res = ConfigEnum::destroy($ids);
-            return $res;
-        } catch (DbException $e) {
-            throw new Exception('配置值删除异常', 400);
-        }
-    }
 
     /**
      * 删除指定配置项的配置值
@@ -317,7 +147,7 @@ class ConfigDbSer extends BaseDbService
     {
         !is_array($cIds) and $cIds = explode(',', $cIds);
         try {
-            $res = ConfigEnum::where('cid', 'in', $cIds)->delete();
+            $res = ($this->getModel('ConfigEnum'))::where('cid', 'in', $cIds)->delete();
             return $res;
         } catch (DbException $e) {
             throw new Exception('配置项删除异常', 400);

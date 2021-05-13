@@ -31,7 +31,7 @@ trait Db
      * @author wlq
      * @since 1.0 20210429
      */
-    private function getModel(string $modelName = null)
+    protected function getModel(string $modelName = null)
     {
         $modelName = $modelName??$this->modelName;
         return '\\app\model\\'.$modelName;
@@ -151,17 +151,19 @@ trait Db
      * 单条新增数据
      * <br>新增数据默认使用post请求参数
      *
+     * @param array|null $data
      * @param string|null $modelName
      * @return mixed
      *
      * @author wlq
      * @since 1.0 20210429
      */
-    public function insertOne(string $modelName = null)
+    public function insertOne(array $data = null, string $modelName = null)
     {
+        $data = $data?:app()->request->post();
         $modelPath = $this->getModel($modelName);
         $model = new $modelPath();
-        $model->save(app()->request->post());
+        $model->save($data);
         $pk = $model->getPk();
         return $model->$pk;
     }
@@ -204,7 +206,7 @@ trait Db
      */
     public function makeAllData($filedType, array $data = null, array $autoField = []):array
     {
-        $data = $data?:app()->request->post('insertAll');
+        $data = $data?:app()->request->post('insert_all');
         $insertAll = [];
         //字段类型默认值规则
         $typeDefaultVal = ['int' => 0, 'float' => 0, 'string' => ''];
@@ -220,5 +222,55 @@ trait Db
             $insertAll[] = $save;
         }
         return $insertAll;
+    }
+
+    /**
+     * 主键修改数据
+     *
+     * @param $id
+     * @param array $data
+     * @param string|null $modelName
+     * @return array
+     * @throws Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     *
+     * @author wlq
+     * @since 1.0 20210510
+     */
+    public function updateById($id, array $data = null, string $modelName = null)
+    {
+        $data = $data?:(app()->request->put()?:app()->request->post());
+        $modelPath = $this->getModel($modelName);
+        $model = $modelPath::find($id);
+        if (!$model) {
+            throw new Exception('更新失败：数据不存在或已删除');
+        }
+        $pk = $model->getPk();
+        $model->where($pk, $id)->data($data)->save();
+        return $model->toArray();
+    }
+
+    /**
+     * 主键删除数据
+     *
+     * @param $ids
+     * @param string|null $modelName
+     * @return bool
+     *
+     * @author wlq
+     * @since 1.0 20210510
+     */
+    public function delByIds($ids = null, string $modelName = null)
+    {
+        $ids = $ids?:app()->request->delete('ids');
+        if (!$ids) {
+            return true;
+        }
+        !is_array($ids) and $ids = explode(',', $ids);
+        $modelPath = $this->getModel($modelName);
+        $modelPath::destroy($ids);
+        return true;
     }
 }

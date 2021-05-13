@@ -11,46 +11,8 @@ use think\Exception;
 
 class GroupDbSer extends BaseDbService
 {
-    /**
-     * 分组id获取分组信息
-     *
-     * @param $gid
-     * @param string $fields
-     * @return array
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function getById($gid, $fields = '*')
-    {
-        try {
-            $groupRules = SysGroup::field($fields)->find($gid);
-        } catch (DbException $e) {
-            throw new Exception('角色获取失败', 400);
-        }
-        return $groupRules?$groupRules->toArray():[];
-    }
+    protected $modelName = 'SysGroup';
 
-    /**
-     * 批量获取指定id的分组信息-id为键名
-     *
-     * @param $ids
-     * @param string $fields
-     * @return array
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function getByIds($ids, $fields = '*')
-    {
-        if (!$ids) {
-            return [];
-        }
-        !is_array($ids) and $ids = explode(',', $ids);
-        $data = SysGroup::where('id', 'in', $ids)->column($fields, 'id');
-        return $data;
-    }
     /**
      * 获取全部分组
      *
@@ -64,40 +26,13 @@ class GroupDbSer extends BaseDbService
     public function getAll($fields = '*')
     {
         try {
-            $data = SysGroup::field($fields)->select()->toArray();
+            $data = ($this->getModel())::field($fields)->select()->toArray();
             return $data;
         } catch (DbException $e) {
             throw new Exception('角色查询异常', 400);
         }
     }
 
-    /**
-     * 分页获取分组列表
-     *
-     * @param $where
-     * @param int $page
-     * @param int $size
-     * @param string $fields
-     * @return array
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function getPage($where, $page = 1, $size = 10, $fields = '*')
-    {
-        try {
-            $rows = SysGroup::field($fields)
-                ->where($where)
-                ->limit(($page - 1)*$size, $size)
-                ->select()
-                ->toArray();
-            $count = SysGroup::where($where)->count('id');
-            return $this->setPageData($rows, $page, $size, $count);
-        } catch (DbException $e) {
-            throw new Exception('角色查询异常', 400);
-        }
-    }
 
     /**
      * 分组名查询分组信息
@@ -118,81 +53,40 @@ class GroupDbSer extends BaseDbService
             if ($id) {
                 $where[] = ['id', '<>', $id];
             }
-            $data = SysGroup::where($where)->find();
+            $data = ($this->getModel())::where($where)->find();
             return $data?$data->toArray():[];
         } catch (DbException $e) {
             throw new Exception('角色查询异常', 400);
         }
     }
 
-    /**
-     * 新增分组（单个）
-     *
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function insertOne($data)
-    {
-        try {
-            $group = new SysGroup();
-            $group->save($data);
-            return $group->id;
-        } catch (DbException $e) {
-            throw new Exception('新增角色异常', 400);
-        }
-    }
-    /**
-     * 更新指定id分组
-     *
-     * @param $id
-     * @param $save
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function updateById($id, $save)
-    {
-        try {
-            $data = SysGroup::find($id);
-            if (!$data) {
-                throw new Exception('角色不存在或已删除', 400);
-            }
-            $data->save($save);
-            return $id;
-        } catch (DbException $e) {
-            throw new Exception('角色更新异常', 400);
-        }
-    }
-
-    /**
-     * 删除分组
-     *
-     * @param $ids
-     * @return bool
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function del($ids)
-    {
-        is_string($ids) and $ids = explode(',', $ids);
-        $res = SysGroup::destroy($ids);
-        return $res;
-    }
 
     /**
      *
      * @return array
+     *
+     * @author wlq
+     * @since 1.0 20210510
      */
     public function selOption()
     {
-        $option = SysGroup::column('name `text`,id `value`');
+        $option = ($this->getModel())::column('name `text`,id `value`');
         return $option;
+    }
+
+    /**
+     * 获取用户角色
+     *
+     * @param $userId
+     * @return array
+     *
+     * @author wlq
+     * @since 1.0 20210510
+     */
+    public function getByUserId($userId)
+    {
+        $data = ($this->getModel('SysUserGroup'))::where('user_id', $userId)
+            ->column('group_id');
+        return $data;
     }
 }

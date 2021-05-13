@@ -18,42 +18,6 @@ use think\facade\Log;
 class BaseHelperService
 {
     use CommonAttr;
-//    /**
-//     * 数据库服务实例
-//     * @var Db
-//     */
-//    protected $dbSer;
-//
-//    /**
-//     * 第三方服务实例
-//     * @var Api
-//     */
-//    protected $apiSer;
-//
-//    /**
-//     * 应用实例
-//     * @var \think\App
-//     */
-//    protected $app;
-//
-//    /**
-//     * Request实例
-//     * @var \think\Request
-//     */
-//    protected $request;
-//
-//    /**
-//     * 当前时间
-//     *
-//     * @var int
-//     */
-//    protected $nowTime;
-//    /**
-//     * 登陆信息
-//     *
-//     * @var array
-//     */
-//    protected $loginInfo;
 
     /**
      * 初始化
@@ -80,9 +44,9 @@ class BaseHelperService
     public function setDbSer($class, $object = null)
     {
         if ($object && is_object($object)) {
-            $this->dbSer->$class = $object;
+            $this->db->$class = $object;
         } else {
-            $this->dbSer->$class;
+            $this->db->$class;
         }
         return $this;
     }
@@ -100,9 +64,9 @@ class BaseHelperService
     public function setApiSer($class, $object = null)
     {
         if ($object && is_object($object)) {
-            $this->apiSer->$class = $object;
+            $this->api->$class = $object;
         } else {
-            $this->apiSer->$class;
+            $this->api->$class;
         }
         return $this;
     }

@@ -12,6 +12,7 @@ use think\Exception;
 
 class RuleDbSer extends BaseDbService
 {
+    protected $modelName = 'SysRule';
     /**
      * 获取所有权限
      *
@@ -22,7 +23,8 @@ class RuleDbSer extends BaseDbService
      */
     public function getAll()
     {
-        $data = SysRule::order('sort')->column('id,pid,href,method,title,ident,auth_open,same_pid,icon,sort,menu_status,path_id,is_btn');
+        $data = ($this->getModel())::order('sort')
+            ->column('*', 'id');
         return $data;
     }
 
@@ -45,72 +47,11 @@ class RuleDbSer extends BaseDbService
             if ($id) {
                 $where[] = ['id', '<>', $id];
             }
-            $data = SysRule::where($where)->find();
+            $data = ($this->getModel())::where($where)->find();
         } catch (DbException $e) {
             throw new Exception('权限查询异常', 400);
         }
         return $data?$data->toArray():[];
     }
 
-    /**
-     * 新增权限（单个）
-     *
-     * @param $data
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function insertOne($data)
-    {
-        try {
-            $rule = new SysRule();
-            $rule->save($data);
-            return $rule->id;
-        } catch (DbException $e) {
-            throw new Exception('新增权限异常', 400);
-        }
-    }
-
-    /**
-     * 更新指定id权限
-     *
-     * @param $id
-     * @param $save
-     * @return mixed
-     * @throws Exception
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function updateById($id, $save)
-    {
-        try {
-            $data = SysRule::find($id);
-            if (!$data) {
-                throw new Exception('权限不存在或已删除', 400);
-            }
-            $data->save($save);
-            return $id;
-        } catch (DbException $e) {
-            throw new Exception('权限更新异常', 400);
-        }
-    }
-
-    /**
-     * 删除权限
-     *
-     * @param $ids
-     * @return bool
-     *
-     * @author wlq
-     * @since 1.0 20201009
-     */
-    public function del($ids)
-    {
-        is_string($ids) and $ids = explode(',', $ids);
-        $res = SysRule::destroy($ids);
-        return $res;
-    }
 }

@@ -2,11 +2,11 @@
 namespace app\controller;
 
 use app\BaseController;
+use app\middleware\RuleCheck;
 use think\exception\HttpException;
 
 class ApiController extends BaseController
 {
-
     /**
      * api路由处理
      *
@@ -60,7 +60,6 @@ class ApiController extends BaseController
         $this->request->setController("{$file}/{$className}");
         $this->request->setAction($action);
         $restAction = $action . ucfirst(strtolower($this->request->method()));
-
         //注册执行中间件
         $this->registerApiMiddleware($class);
         return $this->execApi($class,

@@ -38,7 +38,7 @@ class PowerHelperSer extends BaseHelperService
      */
     public function reloadPower()
     {
-        $groups = $this->dbSer->group->getAll('id,name,rules');
+        $groups = $this->db->group->getAll('id,name,rules');
         $this->reloadRules();
         $rules = $this->getRules();
         foreach ($groups as $kg => $vg) {
@@ -77,7 +77,7 @@ class PowerHelperSer extends BaseHelperService
     {
         $groupRules = cache('admin_group_' . $id);
         if (!$groupRules) {
-            $groupRules = $this->dbSer->group->getById($id, 'id,name,rules');
+            $groupRules = $this->db->group->getById($id, 'id,name,rules');
             if (!$groupRules) {
                 throw new Exception('角色不存在', 400);
             }
@@ -99,22 +99,22 @@ class PowerHelperSer extends BaseHelperService
     private function cacheGroupRules($groupRules, $rules = [])
     {
         $groupRules['rules'] = $groupRules['rules'] ? explode(',', $groupRules['rules']) : [];
-        $groupRules['rulesInfo'] = [];
+        $groupRules['rules_info'] = [];
         !$rules and $rules = $this->getRules();
         foreach ($rules as $vr) {
             if ($groupRules['id'] == 1) {
-                $groupRules['rulesInfo'][] = $vr;
+                $groupRules['rules_info'][] = $vr;
                 continue;
             }
             if (!$groupRules['rules']) {
                 continue;
             }
             if (in_array($vr['id'], $groupRules['rules']) || !$vr['auth_open']) {
-                $groupRules['rulesInfo'][] = $vr;
+                $groupRules['rules_info'][] = $vr;
             }
         }
-        $groupRules['rulesByIdent'] = array_column($groupRules['rulesInfo'], null, 'ident');
-        $groupRules['rulesByHref'] = array_column($groupRules['rulesInfo'], null, 'href');
+        $groupRules['rules_by_ident'] = array_column($groupRules['rules_info'], null, 'ident');
+        $groupRules['rules_by_href'] = array_column($groupRules['rules_info'], null, 'href');
         cache('admin_group_' . $groupRules['id'], $groupRules);
         return $groupRules;
     }
@@ -133,7 +133,7 @@ class PowerHelperSer extends BaseHelperService
         $rules = cache('admin_rule');
         $rulesByIdent = cache('admin_rule_by_ident');
         if (!$rules || !$rulesByIdent) {
-            $rules = $this->dbSer->rule->getAll();
+            $rules = $this->db->rule->getAll();
             cache('admin_rule', $rules);
             $rulesByIdent = array_column($rules, null, 'ident');
             cache('admin_rule_by_ident', $rulesByIdent);
@@ -154,7 +154,7 @@ class PowerHelperSer extends BaseHelperService
     {
         try {
             $request = $this->request;
-            $userInfo = $this->dbSer->admin->loginInfo();
+            $userInfo = $this->db->admin->loginCheck();
             $controller = $request->controller();
             $action = $request->action();
             if ($this->isAdmin($userInfo['id'])) {
@@ -168,27 +168,21 @@ class PowerHelperSer extends BaseHelperService
                     if (strtolower($rulesByHref[$href]['method']) != strtolower($request->method())) {
                         throw new Exception('错误请求', 404);
                     }
-                    if ($rulesByHref[$href]['path_id'] && !$request->has('id')) {
-                        throw new Exception('错误请求，缺少pathId', 404);
-                    }
                 }
                 return ['status' => true];
             }
-            $rules = $this->getGroupRules($userInfo['group_id']);
+            $rules = $this->getGroupRules($userInfo['now_group_id']);
             if ($ident != '') {
-                if (!isset($rules['rulesByIdent'][$ident])) {
+                if (!isset($rules['rules_by_ident'][$ident])) {
                     throw new Exception('没有权限', 403);
                 }
             } else {
                 $href = $controller . '/' . $action;
-                if (isset($rules['rulesByHref'][$href]) == false) {
+                if (isset($rules['rules_by_href'][$href]) == false) {
                     throw new Exception('没有权限', 403);
                 }
-                if (strtolower($rules['rulesByHref'][$href]['method']) != strtolower($request->method())) {
+                if (strtolower($rules['rules_by_href'][$href]['method']) != strtolower($request->method())) {
                     throw new Exception('错误请求', 404);
-                }
-                if ($rules['rulesByHref'][$href]['path_id'] && !$request->has('id')) {
-                    throw new Exception('错误请求，缺少pathId', 404);
                 }
             }
             return ['status' => true];
@@ -209,7 +203,7 @@ class PowerHelperSer extends BaseHelperService
      */
     public function isAdmin($id = 0)
     {
-        $id = $id ?: $this->dbSer->admin->loginInfo()['id'];
+        $id = $id ?: $this->loginInfo['id'];
         if ($id == 1) {
             return true;
         }

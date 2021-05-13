@@ -38,7 +38,7 @@ class ExceptionHandleApi extends Handle
     public function report(Throwable $exception): void
     {
         // 使用内置的方式记录异常日志
-        parent::report($exception);
+//        parent::report($exception);
     }
 
     /**
@@ -51,7 +51,7 @@ class ExceptionHandleApi extends Handle
      */
     public function render($request, Throwable $e): Response
     {
-        $code = $e->getCode();
+        $code = $e->getCode()?:500;
         $msg         = $this->getMessage($e);
         $description = $e->getTraceAsString();
         if ($e instanceof \ArgumentCountError) {
@@ -61,7 +61,8 @@ class ExceptionHandleApi extends Handle
         if ($e instanceof HttpException) {
             $code = $e->getStatusCode();
             $description = json_decode($e->getMessage(), true);
-            $msg = $description['error'];
+            $description = $description['error']??$e->getMessage();
+            $msg = $description['error']??'请求错误';
             Log::write($e->getMessage(), 'api_error');
         }
         // 添加自定义异常处理机制
@@ -70,7 +71,11 @@ class ExceptionHandleApi extends Handle
             'msg'         => $msg,
             'description' => $description
         ];
-        Log::write(json_encode($data), 'error');
+        $log = $data;
+        $log['url'] = $this->app->request->controller().'/'.$this->app->request->action();
+        $log['method'] = $this->app->request->method();
+        $log['param'] = $this->app->request->param();
+        Log::write(json_encode($log), 'error');
         return json($data, 500);
     }
 }

@@ -19,8 +19,11 @@ class BaseApiService
 
     protected $url = '';
     protected $path = [];
+    protected $pathConfig = [];
     protected $serviceName = '';
     protected $checkCode = false;
+    protected $apiConfigIdent = '';
+    protected $apiConfig;
     public function __construct()
     {
         $this->init();
@@ -30,6 +33,30 @@ class BaseApiService
 
     protected function setPath(){}
 
+    /**
+     * 初始化第三方服务配置
+     *
+     * @param $data
+     *
+     * @author wlq
+     * @since 1.0 20210511
+     */
+    public function initConfig($data)
+    {
+        if (!$this->apiConfigIdent) {
+            throw new Exception('未配置'.$this->serviceName.'服务标识');
+        }
+        if (empty($data[$this->apiConfigIdent]['enum'])) {
+            throw new Exception('未配置'.$this->serviceName.'服务地址');
+        }
+        $data[$this->apiConfigIdent]['enum'] = array_column($data[$this->apiConfigIdent]['enum'], 'value', 'key');
+        if (empty($data[$this->apiConfigIdent]['enum']['url'])) {
+            throw new Exception('未配置'.$this->serviceName.'服务地址');
+        }
+        $this->url = $data[$this->apiConfigIdent]['enum']['url'];
+        unset($data[$this->apiConfigIdent]['enum']['url']);
+        $this->pathConfig = $data[$this->apiConfigIdent]['enum'];
+    }
     /**
      * 请求服务
      *

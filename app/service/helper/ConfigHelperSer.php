@@ -36,9 +36,9 @@ class ConfigHelperSer extends BaseHelperService
     {
         $config = $this->app->cache->get('bf_admin_config_'.$type);
         if (!$config) {
-            $config = $this->dbSer->config->getByType($type,'id,explain,ident,type,sort');
+            $config = $this->db->config->getByType($type,'id,explain,ident,type,sort');
             $ids = array_column($config, 'id');
-            $enum = $this->dbSer->config->getEnumByCIds($ids, 'id,cid,key,value,sort');
+            $enum = $this->db->config->getEnumByCIds($ids, 'id,cid,key,value,sort');
             $enumByCid = [];
             foreach ($enum as $ve) {
                 $enumByCid[$ve['cid']] = $enumByCid[$ve['cid']]??[];

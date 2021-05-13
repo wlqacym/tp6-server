@@ -16,7 +16,8 @@ use app\middle\service\Helper;
 class BaseLogic
 {
     use CommonAttr;
-
+    
+    protected $apiConfigEnum;
     public function initHelper()
     {
         $this->helper->setAttrDb($this->db);
@@ -24,6 +25,7 @@ class BaseLogic
         $this->helper->setAttrApp($this->app);
         $this->helper->setAttrRequest($this->request);
         $this->helper->setAttrNowTime($this->nowTime);
+        $this->helper->setAttrLoginInfo($this->loginInfo);
     }
 
     /**

@@ -4,44 +4,75 @@
 namespace app\service\helper;
 
 use app\BaseHelperService;
+use think\console\command\optimize\Schema;
 use think\Exception;
 use think\exception\HttpException;
 
 class AdminHelperSer extends BaseHelperService
 {
     /**
-     * 获取登陆账户信息
+     * 账号密码登陆
      *
-     * @return mixed
+     * @param $username
+     * @param $password
+     * @return array
      * @throws Exception
      *
-     * @codeCoverageIgnore
-     *
-     * @author  wlq
-     * @since   v1.0    20200603
+     * @author wlq
+     * @since 1.0 20210510
      */
-    public function loginInfo()
+    public function login($username, $password)
     {
-        $token = $this->request->header('access-token');
-        !$token and $token = $this->request->get('token');
-        if (!$token) {
-            throw new Exception('缺少token', 400);
+        $data['logonName'] = $username;
+        $data['pwd'] = md5($password);
+        try {
+            $params = [
+                'type' => 2,
+                'logonName' => $data['logonName'],
+                'pwd' => strtoupper($data['pwd'])
+            ];
+            $data = $this->api->user->confirmFetch($params);
+            if (!$data) {
+                throw new HttpException(400, '用户名密码错误');
+            }
+            $userInfo = $this->db->user->getByZtyId($data['userId']);
+            if (!$userInfo) {
+                throw new \Exception('用户不存在', 400);
+            }
+            if ($userInfo['id'] == 1) {
+                //超管拥有全部角色
+                $group = $this->db->group->getAll('id');
+                $group = array_column($group, 'id');
+            } else {
+                $group = $this->db->group->getByUserId($userInfo['id']);
+                if (!$group) {
+                    throw new \Exception('没有权限', 400);
+                }
+            }
+            $groupById = $this->db->group->getByIds($group, 'name');
+            $config = $this->app->config;
+            $key = $config->get('api.login_key');
+            $expireTime = $config->get('api.expire_time');
+            $time = time();
+            $userInfo['group_ids'] = $group;
+            $userInfo['login_time'] = $time;
+            $return = [];
+            //缓存登陆信息
+            foreach ($group as $groupId) {
+                $userInfo['now_group_id'] = $groupId;
+                $token = md5($userInfo['id'].'_'.$groupId.'_'.$time.'_'.$key);
+                cache('admin_login_'.$token, $userInfo, $expireTime);
+                $return[] = [
+                    'group_id' => $groupId,
+                    'token' => $token,
+                    'group_name' => $groupById[$groupId]
+                ];
+            }
+            return $return;
+        } catch (HttpException $e) {
+            throw new Exception($e->getMessage(), $e->getStatusCode());
+        } catch (\Exception $e) {
+            throw new Exception($e->getMessage(), 500);
         }
-        $userInfo = cache('admin_login_'.$token);
-        if (!$userInfo) {
-            throw new Exception('登陆超时，请重新登陆', 400);
-        }
-        return $userInfo;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function updateTimeOut()
-    {
-        $token = $this->request->header('access-token');
-        $expireTime = $this->app->config->get('api.expire_time');
-        $userInfo = $this->loginInfo();
-        cache('admin_login_'.$token, $userInfo, $expireTime);
     }
 }

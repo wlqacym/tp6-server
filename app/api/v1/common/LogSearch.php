@@ -7,6 +7,7 @@ use app\api\Base;
 
 class LogSearch extends Base
 {
+    protected $middleware = [];
     public function getLogList($type, $ym, $d)
     {
         $page = $this->request->get('page', 0);

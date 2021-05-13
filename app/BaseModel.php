@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app;
 
+use app\service\Admin;
 use think\Exception;
 use think\Model;
 use think\model\concern\SoftDelete;

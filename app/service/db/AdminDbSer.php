@@ -19,7 +19,7 @@ class AdminDbSer extends BaseDbService
      * @author  wlq
      * @since   v1.0    20200603
      */
-    public function loginInfo()
+    public function loginCheck()
     {
         $app = app();
         $token = $app->request->header('access-token');
@@ -42,7 +42,7 @@ class AdminDbSer extends BaseDbService
         $app = app();
         $token = $app->request->header('access-token');
         $expireTime = $app->config->get('api.expire_time');
-        $userInfo = $this->loginInfo();
+        $userInfo = $this->loginCheck();
         cache('admin_login_'.$token, $userInfo, $expireTime);
     }
 }

@@ -10,6 +10,10 @@ use app\helper\CommonAttr;
  * Class BaseDbService
  * @package app\service
  * @property \app\service\helper\TestHelperSer $test
+ * @property \app\service\helper\OfficeHelperSer $office
+ * @property \app\service\helper\AdminHelperSer $admin
+ * @property \app\service\helper\ConfigHelperSer $config
+ * @property \app\service\helper\PowerHelperSer $power
  */
 class Helper
 {
@@ -28,6 +32,7 @@ class Helper
             $this->$class->setAttrApp($this->app);
             $this->$class->setAttrRequest($this->request);
             $this->$class->setAttrNowTime($this->nowTime);
+            $this->$class->setAttrLoginInfo($this->loginInfo);
         }
         return $this;
     }
