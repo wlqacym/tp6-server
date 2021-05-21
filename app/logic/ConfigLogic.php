@@ -133,7 +133,7 @@ class ConfigLogic extends BaseLogic
                 }
             }
             //添加配置值
-            $this->db->config->insertAll($enum, 'ConfigEnum');
+            $this->db->config->insertAll($enum, 'Enum');
             //key为空的配置值将key更新为id值
             $this->db->config->updateEnumByCIds($cIds);
             $this->app->db->commit();
@@ -149,17 +149,18 @@ class ConfigLogic extends BaseLogic
      * 获取指定分类配置
      *
      * @param $type
+     * @param string $ident
      * @return array
      * @throws Exception
-     *
      * @author wlq
      * @since 1.0 20201027
      */
-    public function getType($type)
+    public function getType($type, $ident = '')
     {
-        $data = $this->helper->config->getByType($type);
+        $data = $this->helper->config->getByType($type, $ident);
         return $data;
     }
+
 
     /**
      * 新增配置项
@@ -179,6 +180,7 @@ class ConfigLogic extends BaseLogic
             throw new Exception('配置项标识重复');
         }
         $id = $this->db->config->insertOne();
+        $this->helper->config->clearCache($type);
         return $id;
     }
 
@@ -208,6 +210,7 @@ class ConfigLogic extends BaseLogic
             throw new Exception('配置项标识重复');
         }
         $this->db->config->updateById($id);
+        $this->helper->config->clearCache($type);
         return $id;
     }
 
@@ -235,7 +238,8 @@ class ConfigLogic extends BaseLogic
         if (isset($enumByKey[$key])) {
             throw new Exception('配置值键名已存在');
         }
-        $id = $this->db->config->insertOne(null, 'ConfigEnum');
+        $id = $this->db->config->insertOne(null, 'Enum');
+        $this->helper->config->clearCache($config['type']);
         return $id;
     }
 
@@ -265,7 +269,8 @@ class ConfigLogic extends BaseLogic
         if (isset($enumByKey[$key]) && $enumByKey[$key]['id'] != $id) {
             throw new Exception('配置值键名已存在');
         }
-        $id = $this->db->config->updateById($id, null, 'ConfigEnum');
+        $this->db->config->updateById($id, null, 'Enum');
+        $this->helper->config->clearCache($config['type']);
         return $id;
     }
 }

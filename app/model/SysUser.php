@@ -20,6 +20,7 @@ class SysUser extends BaseModel
         'school_name' => 'string',   //学校名称
         'imgs' => 'string',   //用户图片
         'relation_id' => 'int',   //关联用户id
+        'source' => 'int',   //来源，1=系统创建，2=用户服务导入，3=静默登陆创建
         'del' => 'int',   //是否删除 0否 1是
         'create_time' => 'int',   //创建时间
         'create_user' => 'int',   //创建人

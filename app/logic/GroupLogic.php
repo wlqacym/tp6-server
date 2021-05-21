@@ -27,7 +27,12 @@ class GroupLogic extends BaseLogic
         $option = $this->request->get();
         $where = [];
         !empty($option['name']) and $where[] = ['name', 'like', "%{$option['name']}%"];
-        $data = $this->db->group->getPage($where, $page, $size, 'id,name,blurb,rules,rules_show,create_time,create_user');
+        $data = $this->db->group->getPage(
+            $where,
+            $page,
+            $size,
+            'id,name,ident,blurb,icon,rules,rules_show,create_time,create_user'
+        );
         $userIds = array_column($data['rows'], 'create_user');
         $users = $this->db->user->getByIds($userIds, 'real_name');
         foreach ($data['rows'] as &$v) {
@@ -103,12 +108,8 @@ class GroupLogic extends BaseLogic
             throw new Exception('超级管理员角色不可删除', 400);
         }
         $res = $this->db->group->delByIds($ids);
-        if (!$res) {
-            throw new Exception('删除失败', 400);
-        } else {
-            $this->helper->power->reloadGroupRules($ids);
-            return true;
-        }
+        $this->helper->power->reloadGroupRules($ids);
+        return true;
     }
 
     /**
@@ -159,7 +160,7 @@ class GroupLogic extends BaseLogic
                 'group_id' => $groupId
             ];
         }
-        $res = $this->db->user->insertAll($save, 'SysUserGroup');
+        $res = $this->db->user->insertAll($save, 'Group');
         return true;
     }
 }

@@ -34,7 +34,7 @@ class RuleCheck
         }
         //更新过期时间
         try {
-            $db->admin->updateTimeOut();
+            $power->updateTimeOut();
         } catch (Exception $e) {}
         //
         return $next($request);

@@ -13,6 +13,7 @@ class SysGroup extends BaseModel
         'name' => 'string',
         'ident' => 'string',
         'blurb' => 'string',
+        'icon' => 'string',
         'rules' => 'string',
         'rules_show' => 'string',
         'del' => 'int',

@@ -7,17 +7,20 @@ return [
     // 默认日志记录通道
     'default'      => env('log.channel', 'file'),
     // 日志记录级别
-    'level'        => ['alter', 'success','error','sql','notice','info','debug'],
+    'level'        => ['alter', 'success','error', 'api_success','api_error','sql','notice','info','debug'],
     // 日志类型记录的通道 ['error'=>'email',...]
     'type_channel' => [
         'alter' => 'file',
         'success' => 'success',
         'error' => 'error',
+        'api_success' => 'api_success',
+        'api_error' => 'api_error',
         'sql' => 'sql',
         'notice' => 'notice',
         'info' => 'info',
         'debug' => 'debug'
     ],
+    'record_trace' => true,
     // 关闭全局日志写入
     'close'        => false,
     // 全局日志处理 支持闭包
@@ -74,6 +77,50 @@ return [
             'type'           => 'File',
             // 日志保存目录
             'path'           => runtime_path('log').'error',
+            // 单文件日志写入
+            'single'         => false,
+            // 独立日志级别
+            'apart_level'    => [],
+            // 最大日志文件数量
+            'max_files'      => 0,
+            // 使用JSON格式记录
+            'json'           => true,
+            // 日志处理
+            'processor'      => null,
+            // 关闭通道日志写入
+            'close'          => false,
+            // 日志输出格式化
+            'format'         => '[%s][%s] %s',
+            // 是否实时写入
+            'realtime_write' => false,
+        ],
+        'api_success' => [
+            // 日志记录方式
+            'type'           => 'File',
+            // 日志保存目录
+            'path'           => runtime_path('log').'api_success',
+            // 单文件日志写入
+            'single'         => false,
+            // 独立日志级别
+            'apart_level'    => [],
+            // 最大日志文件数量
+            'max_files'      => 0,
+            // 使用JSON格式记录
+            'json'           => true,
+            // 日志处理
+            'processor'      => null,
+            // 关闭通道日志写入
+            'close'          => false,
+            // 日志输出格式化
+            'format'         => '[%s][%s] %s',
+            // 是否实时写入
+            'realtime_write' => false,
+        ],
+        'api_error' => [
+            // 日志记录方式
+            'type'           => 'File',
+            // 日志保存目录
+            'path'           => runtime_path('log').'api_error',
             // 单文件日志写入
             'single'         => false,
             // 独立日志级别

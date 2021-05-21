@@ -23,11 +23,11 @@ class RuleLogic extends BaseLogic
     {
         if ($id) {
             $groupRules = $this->helper->power->getGroupRules($id);
-            $rules = $groupRules['rulesInfo'];
+            $rules = $groupRules['rules_info'];
         } else {
             $rules = $this->helper->power->getRules();
         }
-        return $rules;
+        return array_values($rules);
     }
 
     /**

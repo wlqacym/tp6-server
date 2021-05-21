@@ -99,7 +99,7 @@ class ConfigDbSer extends BaseDbService
         $where[] = ['key', '=', $key];
         $where[] = ['cid', '=', $cId];
         try {
-            $data = ($this->getModel('ConfigEnum'))::where($where)->find();
+            $data = ($this->getModel('Enum'))::where($where)->find();
             $data = $data?($data->id == $id?[]:$data->toArray()):[];
             return $data;
         } catch (DbException $e) {
@@ -122,7 +122,7 @@ class ConfigDbSer extends BaseDbService
     {
         !is_array($cIds) and $cIds = explode(',', $cIds);
         try {
-            $data = ConfigEnum::field($fields)
+            $data = ($this->getModel('Enum'))::field($fields)
                 ->where('cid', 'in', $cIds)
                 ->order('sort asc')
                 ->select()
@@ -147,7 +147,7 @@ class ConfigDbSer extends BaseDbService
     {
         !is_array($cIds) and $cIds = explode(',', $cIds);
         try {
-            $res = ($this->getModel('ConfigEnum'))::where('cid', 'in', $cIds)->delete();
+            $res = ($this->getModel('Enum'))::where('cid', 'in', $cIds)->delete();
             return $res;
         } catch (DbException $e) {
             throw new Exception('配置项删除异常', 400);

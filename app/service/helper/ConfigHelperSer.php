@@ -32,7 +32,7 @@ class ConfigHelperSer extends BaseHelperService
      * @author wlq
      * @since 1.0 20201027
      */
-    public function getByType($type, $ident = '')
+    public function getByType(string $type, $ident = '')
     {
         $config = $this->app->cache->get('bf_admin_config_'.$type);
         if (!$config) {
@@ -54,5 +54,24 @@ class ConfigHelperSer extends BaseHelperService
             $config = $config[$ident]??[];
         }
         return $config;
+    }
+
+
+    /**
+     * 获取指定分类指定标识配置值
+     *
+     * @param string $type
+     * @param string $ident
+     * @return array
+     * @throws Exception
+     *
+     * @author wlq
+     * @since 1.0 20210517
+     */
+    public function getEnumByType(string $type, string $ident)
+    {
+        $config = $this->getByType($type, $ident);
+        $enum = array_column($config['enum'], 'value', 'key');
+        return $enum;
     }
 }

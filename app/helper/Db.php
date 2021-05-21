@@ -33,7 +33,7 @@ trait Db
      */
     protected function getModel(string $modelName = null)
     {
-        $modelName = $modelName??$this->modelName;
+        $modelName = $this->modelName.($modelName?:'');
         return '\\app\model\\'.$modelName;
     }
 
@@ -98,7 +98,7 @@ trait Db
      */
     public function getPage(
         $where = null,
-        $page = 0,
+        $page = 1,
         $size = 1,
         $fields = '*',
         $order = '',
@@ -225,12 +225,12 @@ trait Db
     }
 
     /**
-     * 主键修改数据
+     * 主键修改数据-单个
      *
      * @param $id
      * @param array $data
      * @param string|null $modelName
-     * @return array
+     * @return bool
      * @throws Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -241,17 +241,45 @@ trait Db
      */
     public function updateById($id, array $data = null, string $modelName = null)
     {
-        $data = $data?:(app()->request->put()?:app()->request->post());
         $modelPath = $this->getModel($modelName);
-        $model = $modelPath::find($id);
-        if (!$model) {
-            throw new Exception('更新失败：数据不存在或已删除');
+        if ($data) {
+            $model = new $modelPath();
+        } else {
+            $data = $data?:(app()->request->put()?:app()->request->post());
+            $model = $modelPath::find($id);
+            if (!$model) {
+                throw new Exception('更新失败：数据不存在或已删除');
+            }
         }
         $pk = $model->getPk();
-        $model->where($pk, $id)->data($data)->save();
-        return $model->toArray();
+        $model->where($pk, $id)->save($data);
+        return true;
     }
 
+    /**
+     * 主键修改数据-批量
+     *
+     * @param $id
+     * @param array $data
+     * @param string|null $modelName
+     * @return bool
+     * @throws Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     *
+     * @author wlq
+     * @since 1.0 20210510
+     */
+    public function updateByIds($ids, array $data = null, string $modelName = null)
+    {
+        $data = $data?:(app()->request->put()?:app()->request->post());
+        $modelPath = $this->getModel($modelName);
+        $model = new $modelPath();
+        $pk = $model->getPk();
+        $model->where($pk, 'in', $ids)->data($data)->save();
+        return true;
+    }
     /**
      * 主键删除数据
      *

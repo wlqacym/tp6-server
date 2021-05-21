@@ -20,7 +20,7 @@ use app\middleware\RuleCheck;
 abstract class Base extends BaseController
 {
     protected $middleware = [
-//        RuleCheck::class
+        RuleCheck::class
     ];
     /**
      * @var Logic
@@ -33,6 +33,8 @@ abstract class Base extends BaseController
         $this->logic = new Logic();
         $this->logic->setAttrApp($this->app);
         $this->logic->setAttrRequest($this->request);
+        $this->logic->initAttrNowTime();
+        $this->logic->initAttrLoginInfo();
 
     }
 

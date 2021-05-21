@@ -67,17 +67,19 @@ class PowerHelperSer extends BaseHelperService
      * 获取分组权限
      *
      * @param $id
-     * @return bool
+     * @return mixed|object|\think\App
      * @throws Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
      *
-     * @author  wlq
-     * @since   1.0    20200529
+     * @author wlq
+     * @since 1.0 20210517
      */
     public function getGroupRules($id)
     {
         $groupRules = cache('admin_group_' . $id);
         if (!$groupRules) {
-            $groupRules = $this->db->group->getById($id, 'id,name,rules');
+            $groupRules = $this->db->group->getById($id);
             if (!$groupRules) {
                 throw new Exception('角色不存在', 400);
             }
@@ -100,10 +102,15 @@ class PowerHelperSer extends BaseHelperService
     {
         $groupRules['rules'] = $groupRules['rules'] ? explode(',', $groupRules['rules']) : [];
         $groupRules['rules_info'] = [];
+        $groupRules['rules_by_ident'] = [];
+        $groupRules['rules_by_href'] = [];
         !$rules and $rules = $this->getRules();
         foreach ($rules as $vr) {
             if ($groupRules['id'] == 1) {
                 $groupRules['rules_info'][] = $vr;
+                $groupRules['rules_by_ident'][$vr['ident']] = $vr;
+                $groupRules['rules_by_href'][$vr['href']] = $groupRules['rules_by_href'][$vr['href']]??[];
+                $groupRules['rules_by_href'][$vr['href']][strtolower($vr['href'])] = $vr;
                 continue;
             }
             if (!$groupRules['rules']) {
@@ -111,10 +118,11 @@ class PowerHelperSer extends BaseHelperService
             }
             if (in_array($vr['id'], $groupRules['rules']) || !$vr['auth_open']) {
                 $groupRules['rules_info'][] = $vr;
+                $groupRules['rules_by_ident'][$vr['ident']] = $vr;
+                $groupRules['rules_by_href'][$vr['href']] = $groupRules['rules_by_href'][$vr['href']]??[];
+                $groupRules['rules_by_href'][$vr['href']][strtolower($vr['href'])] = $vr;
             }
         }
-        $groupRules['rules_by_ident'] = array_column($groupRules['rules_info'], null, 'ident');
-        $groupRules['rules_by_href'] = array_column($groupRules['rules_info'], null, 'href');
         cache('admin_group_' . $groupRules['id'], $groupRules);
         return $groupRules;
     }
@@ -142,6 +150,24 @@ class PowerHelperSer extends BaseHelperService
     }
 
     /**
+     * 获取全部权限-href为键名
+     * @return array
+     *
+     * @author wlq
+     * @since 1.0 20210517
+     */
+    public function getRulesByHref()
+    {
+        $rules = $this->getRules();
+        $ruleByHref = [];
+        foreach ($rules as $rule) {
+            $ruleByHref[$rule['href']] = $ruleByHref[$rule['href']]??[];
+            $ruleByHref[$rule['href']][strtolower($rule['method'])] = $rule;
+        }
+        return $ruleByHref;
+    }
+
+    /**
      * 判断权限
      *
      * @param string $ident
@@ -155,17 +181,18 @@ class PowerHelperSer extends BaseHelperService
         try {
             $request = $this->request;
             $userInfo = $this->db->admin->loginCheck();
+            $this->loginInfo = $userInfo;
             $controller = $request->controller();
             $action = $request->action();
             if ($this->isAdmin($userInfo['id'])) {
                 if ($ident == '') {
-                    $rules = $this->getRules();
-                    $rulesByHref = array_column($rules, null, 'href');
-                    $href = $controller . '/' . $action;
-                    if (isset($rulesByHref[$href]) == false) {
+                    $rulesByHref = $this->getRulesByHref();
+                    $href = 'api/'.$controller . '/' . $action;
+                    if (!isset($rulesByHref[$href])) {
                         throw new Exception('没有权限', 403);
                     }
-                    if (strtolower($rulesByHref[$href]['method']) != strtolower($request->method())) {
+                    $method = strtolower($request->method());
+                    if (!isset($rulesByHref[$href][$method])) {
                         throw new Exception('错误请求', 404);
                     }
                 }
@@ -177,11 +204,12 @@ class PowerHelperSer extends BaseHelperService
                     throw new Exception('没有权限', 403);
                 }
             } else {
-                $href = $controller . '/' . $action;
-                if (isset($rules['rules_by_href'][$href]) == false) {
+                $href = 'api/'.$controller . '/' . $action;
+                if (!isset($rules['rules_by_href'][$href])) {
                     throw new Exception('没有权限', 403);
                 }
-                if (strtolower($rules['rules_by_href'][$href]['method']) != strtolower($request->method())) {
+                $method = strtolower($request->method());
+                if (!isset($rules['rules_by_href'][$href][$method])) {
                     throw new Exception('错误请求', 404);
                 }
             }
@@ -208,5 +236,24 @@ class PowerHelperSer extends BaseHelperService
             return true;
         }
         return false;
+    }
+
+    /**
+     * 更新登陆用户信息缓存时间
+     *
+     * @author wlq
+     * @since 1.0 20210517
+     */
+    public function updateTimeOut()
+    {
+        $userInfo = $this->loginInfo;
+        $key = $this->app->config->get('api.login_key');
+        $expireTime = $this->app->config->get('api.expire_time');
+        foreach ($this->loginInfo['group'] as $gid) {
+            $userInfo['now_group_id'] = $gid;
+            $token = md5($userInfo['id'].'_'.$gid.'_'.$userInfo['login_time'].'_'.$key);
+            cache('admin_login_'.$token, $userInfo, $expireTime);
+        }
+
     }
 }

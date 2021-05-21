@@ -75,18 +75,21 @@ class GroupDbSer extends BaseDbService
     }
 
     /**
-     * 获取用户角色
+     * 标识获取分组
      *
-     * @param $userId
+     * @param $ident
      * @return array
+     * @throws DbException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
      *
      * @author wlq
-     * @since 1.0 20210510
+     * @since 1.0 20210517
      */
-    public function getByUserId($userId)
+    public function getByIdent($ident)
     {
-        $data = ($this->getModel('SysUserGroup'))::where('user_id', $userId)
-            ->column('group_id');
-        return $data;
+        $data = ($this->getModel())::where('ident', $ident)->find();
+        return $data?$data->toArray():[];
     }
+
 }
