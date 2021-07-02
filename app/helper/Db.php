@@ -8,6 +8,7 @@
 
 namespace app\helper;
 
+use think\db\exception\DbException;
 use think\Exception;
 use think\facade\Log;
 use think\Model;
@@ -36,6 +37,7 @@ trait Db
         $modelName = $this->modelName.($modelName?:'');
         return '\\app\model\\'.$modelName;
     }
+
 
     /**
      * 主键获取数据
@@ -71,7 +73,7 @@ trait Db
      * @author wlq
      * @since 1.0 20210429
      */
-    public function getWhereByKey($where = null, string $fields = '*', string $key = null, string $modelName = null):array
+    public function getWhereByKey($where = null, string $fields = '*', string $key = null, string $modelName = null)
     {
         $modelPath = $this->getModel($modelName);
         $model = $modelPath::where($where);
@@ -79,6 +81,26 @@ trait Db
         return $model->column($fields, $key);
     }
 
+    /**
+     * 查询条件获取单条数据
+     *
+     * @param null $where
+     * @param string $order
+     * @param string|null $modelName
+     * @return array
+     * @throws DbException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     *
+     * @author wlq
+     * @since 1.0 20210608
+     */
+    public function findWhere($where = null, string $order = '', string $modelName = null):array
+    {
+        $modelPath = $this->getModel($modelName);
+        $data = $modelPath::where($where)->order($order)->find();
+        return $data?$data->toArray():[];
+    }
     /**
      * 查询条件单表分页查询
      *
@@ -108,7 +130,7 @@ trait Db
         $modelPath = $this->getModel($modelName);
         $model = $modelPath::where($where);
         $data = $model->field($fields)->order($order)->page($page, $size)->select()->toArray();
-        $count = $model->count($model->getPk());
+        $count = $modelPath::where($where)->count($model->getPk());
         return $this->setPageData($data, $page, $size, $count);
     }
 

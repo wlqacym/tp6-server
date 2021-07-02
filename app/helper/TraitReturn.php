@@ -47,16 +47,7 @@ trait TraitReturn
     public function success(string $msg = 'success', int $httpCode = 200)
     {
         $data = ['code' => $httpCode, 'msg' => $msg];
-        //TODO  日志记录
-        $log = [
-            'path' => $this->request->controller().'/'.$this->request->action(),
-            'code' => $httpCode,
-            'method' => $this->request->method(),
-            'params' => $this->request->param(),
-            'url' => $this->request->url(),
-            'msg' => $msg
-        ];
-        Log::record(json_encode($log), 'success');
+        app()->logger->setResponse($data, $httpCode);
         return json($data, $httpCode);
     }
 
@@ -76,17 +67,7 @@ trait TraitReturn
     public function error(int $httpCode = 200, string $msg = '未知错误', string $description = '', int $code = 0)
     {
         $data = ['code' => $code ?: $httpCode, 'msg' => $msg, 'description' => $description];
-        //TODO  日志记录
-        $log = [
-            'path' => $this->request->controller().'/'.$this->request->action(),
-            'code' => $httpCode,
-            'method' => $this->request->method(),
-            'params' => $this->request->param(),
-            'url' => $this->request->url(),
-            'msg' => $msg,
-            'desc' => $description
-        ];
-        Log::record(json_encode($log), 'error');
+        app()->logger->setResponse($data, $httpCode);
         return json($data, $httpCode);
     }
 

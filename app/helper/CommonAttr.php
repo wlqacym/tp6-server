@@ -48,6 +48,11 @@ trait CommonAttr
     protected $request;
 
     /**
+     * @var \app\helper\Logger
+     */
+    protected $logger;
+
+    /**
      * 当前时间
      *
      * @var int
@@ -141,6 +146,7 @@ trait CommonAttr
     public function initAttrApp()
     {
         $this->app = app();
+        $this->logger = $this->app->logger;
     }
     /**
      * 应用实例设置
@@ -153,6 +159,7 @@ trait CommonAttr
     public function setAttrApp($app)
     {
         $this->app = $app;
+        $this->logger = $this->app->logger;
     }
 
     /**
@@ -222,6 +229,7 @@ trait CommonAttr
         if ($token) {
             $userInfo = cache('admin_login_'.$token);
             $this->loginInfo = $userInfo?:[];
+            $this->logger->setOperator($this->loginInfo['id']??0, $this->loginInfo['real_name']??'');
         }
     }
     /**

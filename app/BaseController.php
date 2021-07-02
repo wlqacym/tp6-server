@@ -28,6 +28,11 @@ abstract class BaseController
     protected $app;
 
     /**
+     * @var \app\helper\Logger
+     */
+    protected $logger;
+
+    /**
      * 是否批量验证
      * @var bool
      */
@@ -47,6 +52,8 @@ abstract class BaseController
     public function __construct(App $app)
     {
         $this->app     = $app;
+        $this->app->bind('logger', 'app\helper\Logger');
+        $this->logger = $this->app->logger;
         $this->request = $this->app->request;
 
         // 控制器初始化
